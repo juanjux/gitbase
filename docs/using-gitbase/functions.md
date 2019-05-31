@@ -28,6 +28,7 @@ These are all functions that are available because they are implemented in `go-m
 |:-------------|:-------------------------------------------------------------------------------------------------------------------------------|
 |`ARRAY_LENGTH(json)`|if the json representation is an array, this function returns its size.|
 |`AVG(expr)`| returns the average value of expr in all rows.|
+|`BLAME(expr)`|Returns a list, as a json array, of lines changes and authorship.|
 |`CEIL(number)`| returns the smallest integer value that is greater than or equal to `number`.|
 |`CEILING(number)`| returns the smallest integer value that is greater than or equal to `number`.|
 |`CHAR_LENGTH(str)`| returns the length of the string in characters.|
