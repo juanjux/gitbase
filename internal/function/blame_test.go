@@ -34,12 +34,16 @@ func TestBlameEval(t *testing.T) {
 		commit   sql.Expression
 		row      sql.Row
 		expected BlameLine
+		testedLine int
+		lineCount int
 	}{
 		{
 			name:   "init commit",
 			repo:   expression.NewGetField(0, sql.Text, "repository_id", false),
 			commit: expression.NewGetField(1, sql.Text, "commit_hash", false),
 			row:    sql.NewRow("worktree", "b029517f6300c2da0f4b651b8642506cd6aaf45d"),
+			testedLine: 0,
+			lineCount: 34,
 			expected: BlameLine{
 				"b029517f6300c2da0f4b651b8642506cd6aaf45d",
 				".gitignore",
@@ -54,11 +58,16 @@ func TestBlameEval(t *testing.T) {
 			blame := NewBlame(tc.repo, tc.commit)
 			results, err := blame.Eval(ctx, tc.row)
 			require.NoError(t, err)
-			for _, r := range results.([]BlameLine) {
-				fmt.Println(r)
+			lineCount := 0
+			for i, r := range results.([]BlameLine) {
+				fmt.Println(i, r)
+				lineCount++
+				if i != tc.testedLine {
+					continue
+				}
 				require.EqualValues(t, tc.expected, r)
-				break
 			}
+			require.Equal(t, tc.lineCount, lineCount)
 		})
 	}
 }
