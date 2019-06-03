@@ -2,14 +2,12 @@ package function
 
 import (
 	"context"
-	"fmt"
-	"gopkg.in/src-d/go-mysql-server.v0/sql/expression"
-
 	"github.com/src-d/gitbase"
 	"github.com/stretchr/testify/require"
 	fixtures "gopkg.in/src-d/go-git-fixtures.v3"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-mysql-server.v0/sql"
+	"gopkg.in/src-d/go-mysql-server.v0/sql/expression"
 	"testing"
 )
 
@@ -21,7 +19,6 @@ func TestBlameEval(t *testing.T) {
 	}()
 
 	path := fixtures.ByTag("worktree").One().Worktree().Root()
-
 	pool := gitbase.NewRepositoryPool(cache.DefaultMaxSize)
 	require.NoError(t, pool.AddGitWithID("worktree", path))
 
@@ -29,21 +26,21 @@ func TestBlameEval(t *testing.T) {
 	ctx := sql.NewContext(context.TODO(), sql.WithSession(session))
 
 	testCases := []struct {
-		name     string
-		repo     sql.Expression
-		commit   sql.Expression
-		row      sql.Row
-		expected BlameLine
+		name       string
+		repo       sql.Expression
+		commit     sql.Expression
+		row        sql.Row
+		expected   BlameLine
 		testedLine int
-		lineCount int
+		lineCount  int
 	}{
 		{
-			name:   "init commit",
-			repo:   expression.NewGetField(0, sql.Text, "repository_id", false),
-			commit: expression.NewGetField(1, sql.Text, "commit_hash", false),
-			row:    sql.NewRow("worktree", "b029517f6300c2da0f4b651b8642506cd6aaf45d"),
+			name:       "init commit",
+			repo:       expression.NewGetField(0, sql.Text, "repository_id", false),
+			commit:     expression.NewGetField(1, sql.Text, "commit_hash", false),
+			row:        sql.NewRow("worktree", "b029517f6300c2da0f4b651b8642506cd6aaf45d"),
 			testedLine: 0,
-			lineCount: 34,
+			lineCount:  12,
 			expected: BlameLine{
 				"b029517f6300c2da0f4b651b8642506cd6aaf45d",
 				".gitignore",
@@ -51,7 +48,23 @@ func TestBlameEval(t *testing.T) {
 				"mcuadros@gmail.com",
 				"*.class",
 			},
-		}}
+		},
+		{
+			name:       "changelog",
+			repo:       expression.NewGetField(0, sql.Text, "repository_id", false),
+			commit:     expression.NewGetField(1, sql.Text, "commit_hash", false),
+			row:        sql.NewRow("worktree", "b8e471f58bcbca63b07bda20e428190409c2db47"),
+			testedLine: 0,
+			lineCount:  1,
+			expected: BlameLine{
+				"b8e471f58bcbca63b07bda20e428190409c2db47",
+				"CHANGELOG",
+				0,
+				"daniel@lordran.local",
+				"Creating changelog",
+			},
+		},
+	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -60,7 +73,9 @@ func TestBlameEval(t *testing.T) {
 			require.NoError(t, err)
 			lineCount := 0
 			for i, r := range results.([]BlameLine) {
-				fmt.Println(i, r)
+				if r.File != tc.expected.File {
+					continue
+				}
 				lineCount++
 				if i != tc.testedLine {
 					continue
