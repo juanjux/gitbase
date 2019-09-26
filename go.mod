@@ -30,6 +30,7 @@ require (
 	gopkg.in/src-d/go-billy-siva.v4 v4.5.1
 	gopkg.in/src-d/go-billy.v4 v4.3.0
 	gopkg.in/src-d/go-errors.v1 v1.0.0
+	gopkg.in/src-d/go-git-fixtures.v3 v3.5.0
 	gopkg.in/src-d/go-git.v4 v4.12.0
 	gopkg.in/src-d/go-mysql-server.v0 v0.5.1
 	gopkg.in/yaml.v2 v2.2.2
