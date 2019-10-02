@@ -67,9 +67,9 @@ func TestBlameEval(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			blame := NewBlame(tc.repo, tc.commit)
-			blameGen, err := blame.Eval(ctx, tc.row)
+			b, err := blame.Eval(ctx, tc.row)
 			require.NoError(t, err)
-			bg := blameGen.(*BlameGenerator)
+			bg := b.(*BlameGenerator)
 			defer bg.Close()
 
 			lineCount := 0
